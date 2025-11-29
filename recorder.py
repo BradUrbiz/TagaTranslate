@@ -10,16 +10,16 @@ chunk = 1024
 silence = 1.0
 noise_needed = 100
 
-pyaudio_instance = pyaudio.PyAudio()
+pyaudio = pyaudio.PyAudio()
 
 files = [file for file in os.listdir("audio") if file.endswith(".wav")]
 if files:
     files.sort()
     file_index = int(files[-1].split(".")[0]) + 1
 else:
-    file_index = 1  # start at 0001
+    file_index = 1
 
-stream = pyaudio_instance.open(
+stream = pyaudio.open(
     format=format,
     channels=channel,
     rate=rate,
@@ -51,7 +51,7 @@ while True:
                 filename = f"audio/{file_index:04d}.wav"
                 wavefile = wave.open(filename, "wb")
                 wavefile.setnchannels(channel)
-                wavefile.setsampwidth(pyaudio_instance.get_sample_size(format))
+                wavefile.setsampwidth(pyaudio.get_sample_size(format))
                 wavefile.setframerate(rate)
                 wavefile.writeframes(b"".join(frames))
                 wavefile.close()
