@@ -8,9 +8,9 @@ import select
 RATE = 16000
 CHANNELS = 1
 
-os.makedirs("audio", exist_ok=True)
+os.makedirs("testset", exist_ok=True)
 
-files = [f for f in os.listdir("audio") if f.endswith(".wav")]
+files = [f for f in os.listdir("testset") if f.endswith(".wav")]
 if files:
     files.sort()
     file_index = int(files[-1].split(".")[0]) + 1
@@ -39,7 +39,7 @@ while True:
     audio = np.concatenate(frames, axis=0)
 
     
-    filename = f"audio/{file_index:04d}.wav"
+    filename = f"testset/{file_index:04d}.wav"
     sf.write(filename, audio, RATE)
     print(f"saved {filename}\n")
 
