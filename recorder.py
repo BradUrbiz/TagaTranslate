@@ -1,81 +1,46 @@
-import pyaudio
-import wave
+import sounddevice as sd
+import soundfile as sf
+import numpy as np
 import os
-import audioop
-import threading
-import keyboard
+import sys
+import select
 
-format = pyaudio.paInt16
-channel = 1
-rate = 16000
-chunk = 1024
-silence = 1.0
-noise_needed = 100
-
-pyaudio = pyaudio.PyAudio()
+RATE = 16000
+CHANNELS = 1
 
 os.makedirs("audio", exist_ok=True)
 
-files = [file for file in os.listdir("audio") if file.endswith(".wav")]
+files = [f for f in os.listdir("audio") if f.endswith(".wav")]
 if files:
     files.sort()
     file_index = int(files[-1].split(".")[0]) + 1
 else:
     file_index = 1
 
-stream = pyaudio.open(
-    format=format,
-    channels=channel,
-    rate=rate,
-    input=True,
-    frames_per_buffer=chunk
-)
-
-frames = []
-active = False
-silence_counter = 0
-is_paused = False
-
-def pause():
-    global is_paused
-    is_paused = not is_paused
-    print("Paused" if is_paused else "Resumed")
-
-def paused():
-    return is_paused
-
-def listen_for_pause():
-    while True:
-        keyboard.wait('p')
-        pause()
-
-threading.Thread(target=listen_for_pause, daemon=True).start()
+print("Enter = start")
+print("Enter = stop")
+print("ctrl+c = quit")
 
 while True:
-    if paused():
-        continue
+    input(f"Enter = start recording {file_index:04d}.wav...")
 
-    data = stream.read(chunk)
-    loud = audioop.rms(data, 2)
+    print("ON, Enter = stop.")
+    frames = []
 
-    if loud > noise_needed:
-        if not active:
-            active = True
-            frames = []
-        frames.append(data)
-        silence_counter = 0
-    else:
-        if active:
+    with sd.InputStream(samplerate=RATE, channels=CHANNELS, dtype='int16') as stream:
+        while True:
+            data, _ = stream.read(1024)
             frames.append(data)
-            silence_counter += chunk / rate
-            if silence_counter > silence:
-                active = False
-                filename = f"audio/{file_index:04d}.wav"
-                wavefile = wave.open(filename, "wb")
-                wavefile.setnchannels(channel)
-                wavefile.setsampwidth(pyaudio.get_sample_size(format))
-                wavefile.setframerate(rate)
-                wavefile.writeframes(b"".join(frames))
-                wavefile.close()
-                print(f"Saved {filename}")
-                file_index += 1
+
+            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                input()
+                break
+
+    audio = np.concatenate(frames, axis=0)
+
+    
+    filename = f"audio/{file_index:04d}.wav"
+    sf.write(filename, audio, RATE)
+    print(f"Saved {filename}\n")
+
+    file_index += 1
