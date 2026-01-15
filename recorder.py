@@ -3,7 +3,7 @@ import soundfile as sf
 import numpy as np
 import os
 import sys
-import select
+import msvcrt
 
 RATE = 16000
 CHANNELS = 1
@@ -32,13 +32,12 @@ while True:
             data, _ = stream.read(1024)
             frames.append(data)
 
-            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                input()
-                break
+            if msvcrt.kbhit():
+                if msvcrt.getch() == b'\r':
+                    break
 
     audio = np.concatenate(frames, axis=0)
 
-    
     filename = f"audio/{file_index:04d}.wav"
     sf.write(filename, audio, RATE)
     print(f"saved {filename}\n")
