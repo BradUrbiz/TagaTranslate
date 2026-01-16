@@ -8,9 +8,15 @@ import select
 RATE = 16000
 CHANNELS = 1
 
-os.makedirs("testset", exist_ok=True)
+# Always use the real testset folder, no matter where the script is run
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TESTSET_DIR = os.path.join(BASE_DIR, "testset")
 
-files = [f for f in os.listdir("testset") if f.endswith(".wav")]
+# Make sure the folder exists (but never creates testset/testset)
+os.makedirs(TESTSET_DIR, exist_ok=True)
+
+# Find the latest file number
+files = [f for f in os.listdir(TESTSET_DIR) if f.endswith(".wav")]
 if files:
     files.sort()
     file_index = int(files[-1].split(".")[0]) + 1
@@ -38,8 +44,8 @@ while True:
 
     audio = np.concatenate(frames, axis=0)
 
-    
-    filename = f"testset/{file_index:04d}.wav"
+    # Save into the correct testset folder
+    filename = os.path.join(TESTSET_DIR, f"{file_index:04d}.wav")
     sf.write(filename, audio, RATE)
     print(f"saved {filename}\n")
 
