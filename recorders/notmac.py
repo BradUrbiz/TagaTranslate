@@ -8,9 +8,13 @@ import msvcrt
 RATE = 16000
 CHANNELS = 1
 
-os.makedirs("audio", exist_ok=True)
+# Always use the same audio folder, no matter where the script is run
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+AUDIO_DIR = os.path.join(BASE_DIR, "audio")
 
-files = [f for f in os.listdir("audio") if f.endswith(".wav")]
+os.makedirs(AUDIO_DIR, exist_ok=True)
+
+files = [f for f in os.listdir(AUDIO_DIR) if f.endswith(".wav")]
 if files:
     files.sort()
     file_index = int(files[-1].split(".")[0]) + 1
@@ -38,7 +42,7 @@ while True:
 
     audio = np.concatenate(frames, axis=0)
 
-    filename = f"audio/{file_index:04d}.wav"
+    filename = os.path.join(AUDIO_DIR, f"{file_index:04d}.wav")
     sf.write(filename, audio, RATE)
     print(f"saved {filename}\n")
 
