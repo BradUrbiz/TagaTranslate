@@ -17,6 +17,9 @@ Batch size: 2
 Gradient accumulation: 8
 Effective batch size: 16
 Learning rate: 1e-05
+
+
 <img width="328" height="377" alt="Screenshot 2026-01-16 194810" src="https://github.com/user-attachments/assets/ab86f1c6-6330-4fd5-87fb-13978743c26d" />
 ---
 For full explanation, check out Youtube video (not made yet)
+
